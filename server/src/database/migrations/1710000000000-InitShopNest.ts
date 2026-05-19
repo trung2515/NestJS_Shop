@@ -6,7 +6,9 @@ export class InitShopNest1710000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
     await queryRunner.query(`CREATE TYPE user_role AS ENUM ('CUSTOMER', 'ADMIN')`);
-    await queryRunner.query(`CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'SHIPPED', 'CANCELLED')`);
+    await queryRunner.query(
+      `CREATE TYPE order_status AS ENUM ('PENDING', 'PAID', 'SHIPPED', 'CANCELLED')`,
+    );
     await queryRunner.query(`CREATE TYPE payment_status AS ENUM ('PENDING', 'PAID', 'FAILED')`);
 
     await queryRunner.query(`
@@ -142,9 +144,13 @@ export class InitShopNest1710000000000 implements MigrationInterface {
 
     await queryRunner.query(`CREATE INDEX idx_products_category ON products ("categoryId")`);
     await queryRunner.query(`CREATE INDEX idx_products_brand ON products (brand)`);
-    await queryRunner.query(`CREATE INDEX idx_products_search ON products USING gin (to_tsvector('simple', name || ' ' || brand || ' ' || description))`);
+    await queryRunner.query(
+      `CREATE INDEX idx_products_search ON products USING gin (to_tsvector('simple', name || ' ' || brand || ' ' || description))`,
+    );
     await queryRunner.query(`CREATE INDEX idx_orders_user ON orders ("userId")`);
-    await queryRunner.query(`CREATE INDEX idx_orders_status_created ON orders (status, "createdAt" DESC)`);
+    await queryRunner.query(
+      `CREATE INDEX idx_orders_status_created ON orders (status, "createdAt" DESC)`,
+    );
     await queryRunner.query(`CREATE INDEX idx_order_items_product ON order_items ("productId")`);
     await queryRunner.query(`CREATE INDEX idx_reviews_product ON reviews ("productId")`);
   }

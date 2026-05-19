@@ -20,7 +20,19 @@ import { InitShopNest1710000000000 } from './migrations/1710000000000-InitShopNe
 config({ path: '.env' });
 config({ path: '.env.example' });
 
-const entityList = [Address, Cart, CartItem, Category, Order, OrderItem, Payment, Product, ProductImage, Review, User];
+const entityList = [
+  Address,
+  Cart,
+  CartItem,
+  Category,
+  Order,
+  OrderItem,
+  Payment,
+  Product,
+  ProductImage,
+  Review,
+  User,
+];
 
 export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptions => ({
   type: 'postgres',

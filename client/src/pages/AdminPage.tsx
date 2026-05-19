@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Alert, Grid, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material';
+import {
+  Alert,
+  Grid,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import InsightsIcon from '@mui/icons-material/Insights';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
@@ -30,14 +41,24 @@ export function AdminPage() {
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h4" fontWeight={900}>Admin dashboard</Typography>
+      <Typography variant="h4" fontWeight={900}>
+        Admin dashboard
+      </Typography>
       {error && <Alert severity="warning">{error}</Alert>}
       <Grid container spacing={2.5}>
         <Grid item xs={12} lg={4}>
-          <Report title="Doanh thu theo ngay" icon={<InsightsIcon color="primary" />} rows={sales} />
+          <Report
+            title="Doanh thu theo ngay"
+            icon={<InsightsIcon color="primary" />}
+            rows={sales}
+          />
         </Grid>
         <Grid item xs={12} lg={4}>
-          <Report title="San pham ban chay" icon={<LeaderboardIcon color="primary" />} rows={topProducts} />
+          <Report
+            title="San pham ban chay"
+            icon={<LeaderboardIcon color="primary" />}
+            rows={topProducts}
+          />
         </Grid>
         <Grid item xs={12} lg={4}>
           <Report title="Ton kho thap" icon={<InventoryIcon color="primary" />} rows={lowStock} />
@@ -53,16 +74,24 @@ function Report({ title, icon, rows }: { title: string; icon: ReactNode; rows: R
     <Paper elevation={0} sx={{ p: 2, border: '1px solid #e5e7eb', height: '100%' }}>
       <Stack direction="row" spacing={1} alignItems="center" mb={2}>
         {icon}
-        <Typography variant="h6" fontWeight={900}>{title}</Typography>
+        <Typography variant="h6" fontWeight={900}>
+          {title}
+        </Typography>
       </Stack>
       <Table size="small">
         <TableHead>
-          <TableRow>{keys.map((key) => <TableCell key={key}>{key}</TableCell>)}</TableRow>
+          <TableRow>
+            {keys.map((key) => (
+              <TableCell key={key}>{key}</TableCell>
+            ))}
+          </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row, index) => (
             <TableRow key={index}>
-              {keys.map((key) => <TableCell key={key}>{String(row[key])}</TableCell>)}
+              {keys.map((key) => (
+                <TableCell key={key}>{String(row[key])}</TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>

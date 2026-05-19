@@ -1,6 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Cart, Order, OrderItem, OrderStatus, Payment, PaymentStatus, Product, User } from '../database/entities';
+import {
+  Cart,
+  Order,
+  OrderItem,
+  OrderStatus,
+  Payment,
+  PaymentStatus,
+  Product,
+  User,
+} from '../database/entities';
 import { CheckoutDto } from './dto';
 
 @Injectable()
@@ -30,7 +39,8 @@ export class OrdersService {
           lock: { mode: 'pessimistic_write' },
         });
         if (!product || !product.isActive) throw new BadRequestException('Product is unavailable');
-        if (product.stock < item.quantity) throw new BadRequestException(`${product.name} is out of stock`);
+        if (product.stock < item.quantity)
+          throw new BadRequestException(`${product.name} is out of stock`);
 
         product.stock -= item.quantity;
         await manager.save(product);

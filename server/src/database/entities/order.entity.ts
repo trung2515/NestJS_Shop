@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { Payment } from './payment.entity';
 import { User } from './user.entity';
@@ -18,7 +26,12 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   user: User;
 
-  @Column({ type: 'enum', enum: OrderStatus, enumName: 'order_status', default: OrderStatus.PENDING })
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    enumName: 'order_status',
+    default: OrderStatus.PENDING,
+  })
   status: OrderStatus;
 
   @Column({ type: 'numeric', precision: 12, scale: 2 })

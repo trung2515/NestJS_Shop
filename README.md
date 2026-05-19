@@ -24,7 +24,7 @@ pgAdmin: http://localhost:5050
 
 pgAdmin login:
 
-- Email: `admin@shopnest.local`
+- Email: `admin@shopnest.com`
 - Password: `admin123`
 
 PostgreSQL connection:
@@ -37,7 +37,7 @@ PostgreSQL connection:
 
 Tai khoan demo:
 
-- Admin: `admin@shopnest.local` / `Admin123!`
+- Admin: `admin@shopnest.com` / `Admin123!`
 - Customer: `linh@example.com` / `Customer123!`
 
 ## API noi bat

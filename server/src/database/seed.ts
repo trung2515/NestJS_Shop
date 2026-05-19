@@ -37,7 +37,7 @@ async function run() {
 
   const admin = await users.save({
     fullName: 'ShopNest Admin',
-    email: 'admin@shopnest.local',
+    email: 'admin@shopnest.com',
     passwordHash: await bcrypt.hash('Admin123!', 10),
     role: UserRole.ADMIN,
     phone: '0900000001',
@@ -53,9 +53,21 @@ async function run() {
   await carts.save([{ user: admin }, { user: customer }]);
 
   const categoryRows = await categories.save([
-    { name: 'Dien thoai', slug: 'dien-thoai', description: 'Smartphone moi nhat' },
-    { name: 'Laptop', slug: 'laptop', description: 'Laptop hoc tap va lam viec' },
-    { name: 'Phu kien', slug: 'phu-kien', description: 'Tai nghe, sac, ban phim' },
+    {
+      name: 'Dien thoai',
+      slug: 'dien-thoai',
+      description: 'Smartphone moi nhat',
+    },
+    {
+      name: 'Laptop',
+      slug: 'laptop',
+      description: 'Laptop hoc tap va lam viec',
+    },
+    {
+      name: 'Phu kien',
+      slug: 'phu-kien',
+      description: 'Tai nghe, sac, ban phim',
+    },
   ]);
 
   const [phones, laptops, accessories] = categoryRows;
@@ -129,8 +141,18 @@ async function run() {
     shippingAddress: '12 Nguyen Trai, Quan 1, TP HCM',
   });
   await orderItems.save([
-    { order, product: productRows[0], quantity: 1, unitPrice: productRows[0].price },
-    { order, product: productRows[4], quantity: 1, unitPrice: productRows[4].price },
+    {
+      order,
+      product: productRows[0],
+      quantity: 1,
+      unitPrice: productRows[0].price,
+    },
+    {
+      order,
+      product: productRows[4],
+      quantity: 1,
+      unitPrice: productRows[4].price,
+    },
   ]);
   await payments.save({
     order,

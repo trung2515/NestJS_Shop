@@ -6,7 +6,7 @@ import { api } from '../api/client';
 import { Session } from '../App';
 
 export function LoginPage({ session }: { session: Session }) {
-  const [email, setEmail] = useState('admin@shopnest.local');
+  const [email, setEmail] = useState('admin@shopnest.com');
   const [password, setPassword] = useState('Admin123!');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -29,13 +29,26 @@ export function LoginPage({ session }: { session: Session }) {
     <Box maxWidth={460} mx="auto">
       <Paper elevation={0} sx={{ p: 3, border: '1px solid #e5e7eb' }}>
         <Stack component="form" spacing={2.5} onSubmit={submit}>
-          <Typography variant="h4" fontWeight={900}>Dang nhap</Typography>
+          <Typography variant="h4" fontWeight={900}>
+            Dang nhap
+          </Typography>
           {error && <Alert severity="error">{error}</Alert>}
-          <TextField label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          <TextField label="Mat khau" type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-          <Button type="submit" size="large" variant="contained" startIcon={<LoginIcon />}>Dang nhap</Button>
+          <TextField
+            label="Email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          <TextField
+            label="Mat khau"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <Button type="submit" size="large" variant="contained" startIcon={<LoginIcon />}>
+            Dang nhap
+          </Button>
           <Typography variant="body2" color="text.secondary">
-            Admin: admin@shopnest.local / Admin123! | Customer: linh@example.com / Customer123!
+            Admin: admin@shopnest.com / Admin123! | Customer: linh@example.com / Customer123!
           </Typography>
         </Stack>
       </Paper>

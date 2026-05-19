@@ -27,7 +27,9 @@ export class CartService {
     if (!product) throw new NotFoundException('Product not found');
     if (product.stock < dto.quantity) throw new BadRequestException('Not enough stock');
 
-    const existing = await this.items.findOne({ where: { cart: { id: cart.id }, product: { id: product.id } } });
+    const existing = await this.items.findOne({
+      where: { cart: { id: cart.id }, product: { id: product.id } },
+    });
     if (existing) {
       existing.quantity += dto.quantity;
       if (existing.quantity > product.stock) throw new BadRequestException('Not enough stock');

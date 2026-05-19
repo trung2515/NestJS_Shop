@@ -20,7 +20,8 @@ export class ProductsService {
       .where('product.isActive = true')
       .orderBy('product.createdAt', 'DESC');
 
-    if (query.categoryId) qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
+    if (query.categoryId)
+      qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
     if (query.q) {
       qb.andWhere(
         `to_tsvector('simple', product.name || ' ' || product.brand || ' ' || product.description) @@ plainto_tsquery('simple', :q)`,

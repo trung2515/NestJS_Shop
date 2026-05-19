@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
-import { AppBar, Badge, Box, Button, Container, IconButton, Toolbar, Typography } from '@mui/material';
+import {
+  AppBar,
+  Badge,
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -32,7 +41,10 @@ export default function App() {
       setCartCount(0);
       return;
     }
-    api.get('/cart').then((res) => setCartCount(res.data?.items?.length ?? 0)).catch(() => setCartCount(0));
+    api
+      .get('/cart')
+      .then((res) => setCartCount(res.data?.items?.length ?? 0))
+      .catch(() => setCartCount(0));
   }, [user]);
 
   function logout() {
@@ -44,15 +56,30 @@ export default function App() {
 
   return (
     <Box minHeight="100vh">
-      <AppBar position="sticky" color="inherit" elevation={0} sx={{ borderBottom: '1px solid #e5e7eb' }}>
+      <AppBar
+        position="sticky"
+        color="inherit"
+        elevation={0}
+        sx={{ borderBottom: '1px solid #e5e7eb' }}
+      >
         <Toolbar>
           <StorefrontIcon color="primary" />
-          <Typography component={Link} to="/" variant="h6" fontWeight={900} sx={{ ml: 1, flexGrow: 1 }}>
+          <Typography
+            component={Link}
+            to="/"
+            variant="h6"
+            fontWeight={900}
+            sx={{ ml: 1, flexGrow: 1 }}
+          >
             ShopNest
           </Typography>
-          <Button component={Link} to="/" startIcon={<StorefrontIcon />}>Shop</Button>
+          <Button component={Link} to="/" startIcon={<StorefrontIcon />}>
+            Shop
+          </Button>
           {user?.role === 'ADMIN' && (
-            <Button component={Link} to="/admin" startIcon={<DashboardIcon />}>Admin</Button>
+            <Button component={Link} to="/admin" startIcon={<DashboardIcon />}>
+              Admin
+            </Button>
           )}
           {user ? (
             <>
@@ -61,17 +88,24 @@ export default function App() {
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
-              <Button onClick={logout} startIcon={<LogoutIcon />}>Logout</Button>
+              <Button onClick={logout} startIcon={<LogoutIcon />}>
+                Logout
+              </Button>
             </>
           ) : (
-            <Button component={Link} to="/login" startIcon={<LoginIcon />}>Login</Button>
+            <Button component={Link} to="/login" startIcon={<LoginIcon />}>
+              Login
+            </Button>
           )}
         </Toolbar>
       </AppBar>
 
       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Routes>
-          <Route path="/" element={<ProductsPage session={session} onCartChange={setCartCount} />} />
+          <Route
+            path="/"
+            element={<ProductsPage session={session} onCartChange={setCartCount} />}
+          />
           <Route path="/login" element={<LoginPage session={session} />} />
           <Route path="/cart" element={<CartPage onCartChange={setCartCount} />} />
           <Route path="/admin" element={<AdminPage />} />
