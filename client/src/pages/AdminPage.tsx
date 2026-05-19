@@ -15,26 +15,21 @@ import {
 import InventoryIcon from '@mui/icons-material/Inventory';
 import InsightsIcon from '@mui/icons-material/Insights';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import { api } from '../api/client';
-
-type Row = Record<string, string | number>;
+import { adminApi } from '../api/admin';
+import { ReportRow } from '../api/types';
 
 export function AdminPage() {
-  const [sales, setSales] = useState<Row[]>([]);
-  const [topProducts, setTopProducts] = useState<Row[]>([]);
-  const [lowStock, setLowStock] = useState<Row[]>([]);
+  const [sales, setSales] = useState<ReportRow[]>([]);
+  const [topProducts, setTopProducts] = useState<ReportRow[]>([]);
+  const [lowStock, setLowStock] = useState<ReportRow[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    Promise.all([
-      api.get('/admin/reports/sales'),
-      api.get('/admin/reports/top-products'),
-      api.get('/admin/reports/low-stock'),
-    ])
-      .then(([salesRes, topRes, lowRes]) => {
-        setSales(salesRes.data);
-        setTopProducts(topRes.data);
-        setLowStock(lowRes.data);
+    Promise.all([adminApi.salesReport(), adminApi.topProducts(), adminApi.lowStock()])
+      .then(([salesReport, topProductsReport, lowStockReport]) => {
+        setSales(salesReport);
+        setTopProducts(topProductsReport);
+        setLowStock(lowStockReport);
       })
       .catch(() => setError('Please sign in with an admin account to view the dashboard.'));
   }, []);
@@ -64,7 +59,7 @@ export function AdminPage() {
   );
 }
 
-function Report({ title, icon, rows }: { title: string; icon: ReactNode; rows: Row[] }) {
+function Report({ title, icon, rows }: { title: string; icon: ReactNode; rows: ReportRow[] }) {
   const keys = rows[0] ? Object.keys(rows[0]) : [];
   return (
     <Paper elevation={0} sx={{ p: 2, border: '1px solid #e5e7eb', height: '100%' }}>

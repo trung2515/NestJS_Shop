@@ -15,7 +15,8 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import { api, AuthUser } from './api/client';
+import { cartApi } from './api/cart';
+import { AuthUser } from './api/types';
 import { AdminPage } from './pages/AdminPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
@@ -41,9 +42,9 @@ export default function App() {
       setCartCount(0);
       return;
     }
-    api
-      .get('/cart')
-      .then((res) => setCartCount(res.data?.items?.length ?? 0))
+    cartApi
+      .get()
+      .then((cart) => setCartCount(cart.items?.length ?? 0))
       .catch(() => setCartCount(0));
   }, [user]);
 

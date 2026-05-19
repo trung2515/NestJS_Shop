@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Paper, Stack, TextField, Typography } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
-import { api } from '../api/client';
+import { authApi } from '../api/auth';
 import { Session } from '../App';
 
 export function LoginPage({ session }: { session: Session }) {
@@ -15,10 +15,10 @@ export function LoginPage({ session }: { session: Session }) {
     event.preventDefault();
     setError('');
     try {
-      const res = await api.post('/auth/login', { email, password });
-      localStorage.setItem('accessToken', res.data.accessToken);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      session.setUser(res.data.user);
+      const auth = await authApi.login(email, password);
+      localStorage.setItem('accessToken', auth.accessToken);
+      localStorage.setItem('user', JSON.stringify(auth.user));
+      session.setUser(auth.user);
       navigate('/');
     } catch {
       setError('Login failed. Please check your email and password.');

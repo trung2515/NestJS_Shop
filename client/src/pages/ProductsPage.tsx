@@ -14,7 +14,9 @@ import {
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
-import { api, Category, Product } from '../api/client';
+import { cartApi } from '../api/cart';
+import { productsApi } from '../api/products';
+import { Category, Product } from '../api/types';
 import { Session } from '../App';
 
 type Props = {
@@ -30,15 +32,11 @@ export function ProductsPage({ session, onCartChange }: Props) {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    api.get('/categories').then((res) => setCategories(res.data));
+    productsApi.categories().then(setCategories);
   }, []);
 
   useEffect(() => {
-    api
-      .get('/products', { params: { categoryId: categoryId || undefined, q: q || undefined } })
-      .then((res) => {
-        setProducts(res.data);
-      });
+    productsApi.list({ categoryId, q }).then(setProducts);
   }, [categoryId, q]);
 
   async function addToCart(productId: string) {
@@ -46,9 +44,9 @@ export function ProductsPage({ session, onCartChange }: Props) {
       setMessage('Please sign in to add products to your cart.');
       return;
     }
-    await api.post('/cart/items', { productId, quantity: 1 });
-    const cart = await api.get('/cart');
-    onCartChange(cart.data?.items?.length ?? 0);
+    await cartApi.addItem(productId);
+    const cart = await cartApi.get();
+    onCartChange(cart.items?.length ?? 0);
     setMessage('Added to cart.');
   }
 

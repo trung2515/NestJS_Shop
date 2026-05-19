@@ -2,19 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
-import { api } from '../api/client';
-
-type CartItem = {
-  id: string;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    price: string;
-    stock: number;
-    images?: { url: string }[];
-  };
-};
+import { cartApi } from '../api/cart';
+import { CartItem } from '../api/types';
 
 export function CartPage({ onCartChange }: { onCartChange: (count: number) => void }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -27,9 +16,9 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   );
 
   const load = useCallback(async () => {
-    const res = await api.get('/cart');
-    setItems(res.data?.items ?? []);
-    onCartChange(res.data?.items?.length ?? 0);
+    const cart = await cartApi.get();
+    setItems(cart.items ?? []);
+    onCartChange(cart.items?.length ?? 0);
   }, [onCartChange]);
 
   useEffect(() => {
@@ -37,12 +26,12 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   }, [load]);
 
   async function removeItem(id: string) {
-    await api.delete(`/cart/items/${id}`);
+    await cartApi.removeItem(id);
     await load();
   }
 
   async function checkout() {
-    await api.post('/orders/checkout', { shippingAddress: address, paymentProvider: 'COD Demo' });
+    await cartApi.checkout({ shippingAddress: address, paymentProvider: 'COD Demo' });
     setMessage('Order placed successfully. The backend created the order in a transaction.');
     await load();
   }
