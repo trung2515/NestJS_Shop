@@ -101,7 +101,11 @@ export function ProductsPage({ session, onCartChange }: Props) {
             >
               <Box
                 component="img"
-                src={product.images?.[0]?.url ?? 'https://picsum.photos/seed/shopnest/800/600'}
+                src={
+                  product.images?.find((image) => image.isPrimary)?.url ??
+                  product.images?.[0]?.url ??
+                  'https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=900&q=80'
+                }
                 alt={product.name}
                 sx={{ width: '100%', aspectRatio: '4 / 3', objectFit: 'cover', display: 'block' }}
               />

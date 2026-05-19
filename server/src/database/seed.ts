@@ -15,7 +15,9 @@ import {
   UserRole,
 } from './entities';
 
-const image = (seed: string) => `https://picsum.photos/seed/${seed}/800/600`;
+const productImage = (url: string) => ({ url, isPrimary: true }) as ProductImage;
+
+const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`;
 
 async function run() {
   await dataSource.initialize();
@@ -80,7 +82,7 @@ async function run() {
       price: '12990000',
       stock: 25,
       category: phones,
-      images: [{ url: image('galaxy-nova-12'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1592899677977-9c10ca588bbd'))],
     }),
     products.create({
       name: 'iPhone Air 15',
@@ -90,7 +92,37 @@ async function run() {
       price: '21990000',
       stock: 12,
       category: phones,
-      images: [{ url: image('iphone-air-15'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1510557880182-3d4d3cba35a5'))],
+    }),
+    products.create({
+      name: 'Pixel Vision 8',
+      slug: 'pixel-vision-8',
+      brand: 'Google',
+      description: 'AI-first Android phone with clean software and dependable night photos.',
+      price: '16990000',
+      stock: 18,
+      category: phones,
+      images: [productImage(img('photo-1611791484670-ce19b801d192'))],
+    }),
+    products.create({
+      name: 'Xiaomi Redmi Turbo',
+      slug: 'xiaomi-redmi-turbo',
+      brand: 'Xiaomi',
+      description: 'Value smartphone with fast charging, large display, and smooth performance.',
+      price: '7490000',
+      stock: 34,
+      category: phones,
+      images: [productImage(img('photo-1601784551446-20c9e07cdbdb'))],
+    }),
+    products.create({
+      name: 'Oppo Reno Glow',
+      slug: 'oppo-reno-glow',
+      brand: 'Oppo',
+      description: 'Slim phone focused on portrait photography and long battery life.',
+      price: '8990000',
+      stock: 21,
+      category: phones,
+      images: [productImage(img('photo-1511707171634-5f897ff02aa9'))],
     }),
     products.create({
       name: 'ThinkBook Pro 14',
@@ -100,7 +132,7 @@ async function run() {
       price: '18990000',
       stock: 9,
       category: laptops,
-      images: [{ url: image('thinkbook-pro-14'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1496181133206-80ce9b88a853'))],
     }),
     products.create({
       name: 'ZenBook Studio 15',
@@ -110,7 +142,37 @@ async function run() {
       price: '24990000',
       stock: 7,
       category: laptops,
-      images: [{ url: image('zenbook-studio-15'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1541807084-5c52b6b3adef'))],
+    }),
+    products.create({
+      name: 'MacBook Air M3 13',
+      slug: 'macbook-air-m3-13',
+      brand: 'Apple',
+      description: 'Lightweight laptop with all-day battery life and a quiet fanless design.',
+      price: '27990000',
+      stock: 11,
+      category: laptops,
+      images: [productImage(img('photo-1517336714731-489689fd1ca8'))],
+    }),
+    products.create({
+      name: 'Dell XPS 13 Plus',
+      slug: 'dell-xps-13-plus',
+      brand: 'Dell',
+      description: 'Compact premium ultrabook with a bright display and strong build quality.',
+      price: '32990000',
+      stock: 8,
+      category: laptops,
+      images: [productImage(img('photo-1593642632823-8f785ba67e45'))],
+    }),
+    products.create({
+      name: 'ROG Strix G16',
+      slug: 'rog-strix-g16',
+      brand: 'Asus',
+      description: 'Gaming laptop with high-refresh display, RGB keyboard, and RTX graphics.',
+      price: '38990000',
+      stock: 5,
+      category: laptops,
+      images: [productImage(img('photo-1603302576837-37561b2e2302'))],
     }),
     products.create({
       name: 'AirBuds Lite',
@@ -120,7 +182,7 @@ async function run() {
       price: '990000',
       stock: 48,
       category: accessories,
-      images: [{ url: image('airbuds-lite'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1606220945770-b5b6c2c55bf1'))],
     }),
     products.create({
       name: 'MechKey K87',
@@ -130,7 +192,47 @@ async function run() {
       price: '1590000',
       stock: 6,
       category: accessories,
-      images: [{ url: image('mechkey-k87'), isPrimary: true } as ProductImage],
+      images: [productImage(img('photo-1587829741301-dc798b83add3'))],
+    }),
+    products.create({
+      name: 'Studio Headphones Pro',
+      slug: 'studio-headphones-pro',
+      brand: 'SoundMax',
+      description: 'Over-ear headphones with soft cushions and deep bass for focused work.',
+      price: '2490000',
+      stock: 19,
+      category: accessories,
+      images: [productImage(img('photo-1505740420928-5e560c06d30e'))],
+    }),
+    products.create({
+      name: 'Ergo Mouse M2',
+      slug: 'ergo-mouse-m2',
+      brand: 'LogiTech',
+      description: 'Wireless ergonomic mouse with silent clicks and adjustable DPI.',
+      price: '690000',
+      stock: 42,
+      category: accessories,
+      images: [productImage(img('photo-1527814050087-3793815479db'))],
+    }),
+    products.create({
+      name: 'USB-C GaN Charger 65W',
+      slug: 'usb-c-gan-charger-65w',
+      brand: 'Anker',
+      description: 'Compact fast charger for phones, tablets, and ultrabooks.',
+      price: '890000',
+      stock: 30,
+      category: accessories,
+      images: [productImage(img('photo-1621972750749-0fbb1abb7736'))],
+    }),
+    products.create({
+      name: '4K Webcam ClearView',
+      slug: '4k-webcam-clearview',
+      brand: 'AverMedia',
+      description: 'Sharp webcam with autofocus and clear video calls for hybrid work.',
+      price: '1790000',
+      stock: 14,
+      category: accessories,
+      images: [productImage(img('photo-1587826080692-f439cd0b70da'))],
     }),
   ]);
 
