@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import {
   Cart,
+  CartItem,
   Order,
   OrderItem,
   OrderStatus,
@@ -33,10 +34,17 @@ export class OrdersService {
       if (!cart || cart.items.length === 0) throw new BadRequestException('Cart is empty');
 
       let total = 0;
+      const checkoutItems: Array<{
+        product: Product;
+        quantity: number;
+        unitPrice: string;
+      }> = [];
+
       for (const item of cart.items) {
         const product = await manager.findOne(Product, {
           where: { id: item.product.id },
           lock: { mode: 'pessimistic_write' },
+          loadEagerRelations: false,
         });
         if (!product || !product.isActive) throw new BadRequestException('Product is unavailable');
         if (product.stock < item.quantity)
@@ -45,6 +53,11 @@ export class OrdersService {
         product.stock -= item.quantity;
         await manager.save(product);
         total += Number(product.price) * item.quantity;
+        checkoutItems.push({
+          product,
+          quantity: item.quantity,
+          unitPrice: product.price,
+        });
       }
 
       const order = await manager.save(Order, {
@@ -54,12 +67,12 @@ export class OrdersService {
         shippingAddress: dto.shippingAddress,
       });
 
-      const orderItems = cart.items.map((item) =>
+      const orderItems = checkoutItems.map((item) =>
         manager.create(OrderItem, {
           order,
           product: item.product,
           quantity: item.quantity,
-          unitPrice: item.product.price,
+          unitPrice: item.unitPrice,
         }),
       );
       await manager.save(orderItems);
@@ -74,7 +87,7 @@ export class OrdersService {
       await manager
         .createQueryBuilder()
         .delete()
-        .from('cart_items')
+        .from(CartItem)
         .where('"cartId" = :cartId', { cartId: cart.id })
         .execute();
 

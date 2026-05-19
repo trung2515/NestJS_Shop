@@ -13,6 +13,7 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import { cartApi } from './api/cart';
@@ -20,6 +21,7 @@ import { AuthUser } from './api/types';
 import { AdminPage } from './pages/AdminPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
+import { OrdersPage } from './pages/OrdersPage';
 import { ProductsPage } from './pages/ProductsPage';
 
 export type Session = {
@@ -84,6 +86,9 @@ export default function App() {
           )}
           {user ? (
             <>
+              <Button component={Link} to="/orders" startIcon={<ReceiptLongIcon />}>
+                Orders
+              </Button>
               <IconButton component={Link} to="/cart" aria-label="cart">
                 <Badge badgeContent={cartCount} color="secondary">
                   <ShoppingCartIcon />
@@ -109,6 +114,7 @@ export default function App() {
           />
           <Route path="/login" element={<LoginPage session={session} />} />
           <Route path="/cart" element={<CartPage onCartChange={setCartCount} />} />
+          <Route path="/orders" element={<OrdersPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Container>

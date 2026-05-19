@@ -49,4 +49,29 @@ export type CheckoutPayload = {
   paymentProvider: string;
 };
 
+export type OrderItem = {
+  id: string;
+  quantity: number;
+  unitPrice: string;
+  product: Product;
+};
+
+export type Payment = {
+  id: string;
+  provider: string;
+  status: 'PENDING' | 'PAID' | 'FAILED';
+  amount: string;
+  createdAt: string;
+};
+
+export type Order = {
+  id: string;
+  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'CANCELLED';
+  totalAmount: string;
+  shippingAddress: string;
+  createdAt: string;
+  items: OrderItem[];
+  payment?: Payment;
+};
+
 export type ReportRow = Record<string, string | number>;

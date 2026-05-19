@@ -1,5 +1,5 @@
 import { http } from './client';
-import { Cart, CheckoutPayload } from './types';
+import { Cart } from './types';
 
 export const cartApi = {
   async get() {
@@ -14,11 +14,6 @@ export const cartApi = {
 
   async removeItem(itemId: string) {
     const { data } = await http.delete(`/cart/items/${itemId}`);
-    return data;
-  },
-
-  async checkout(payload: CheckoutPayload) {
-    const { data } = await http.post('/orders/checkout', payload);
     return data;
   },
 };

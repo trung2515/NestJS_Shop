@@ -2,13 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
+import { Link } from 'react-router-dom';
 import { cartApi } from '../api/cart';
-import { CartItem } from '../api/types';
+import { getApiErrorMessage } from '../api/client';
+import { ordersApi } from '../api/orders';
+import { CartItem, Order } from '../api/types';
 
 export function CartPage({ onCartChange }: { onCartChange: (count: number) => void }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [address, setAddress] = useState('12 Nguyen Trai Street, District 1, Ho Chi Minh City');
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
   const total = useMemo(
     () => items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0),
@@ -31,9 +37,24 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   }
 
   async function checkout() {
-    await cartApi.checkout({ shippingAddress: address, paymentProvider: 'COD Demo' });
-    setMessage('Order placed successfully. The backend created the order in a transaction.');
-    await load();
+    setError('');
+    setMessage('');
+    setCompletedOrder(null);
+    setIsCheckingOut(true);
+
+    try {
+      const order = await ordersApi.checkout({
+        shippingAddress: address,
+        paymentProvider: 'COD Demo',
+      });
+      setCompletedOrder(order);
+      setMessage('Order placed successfully. The backend created the order in a transaction.');
+      await load();
+    } catch (checkoutError) {
+      setError(getApiErrorMessage(checkoutError, 'Could not place order. Please try again.'));
+    } finally {
+      setIsCheckingOut(false);
+    }
   }
 
   return (
@@ -43,7 +64,19 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
       </Typography>
       {message && (
         <Alert severity="info" onClose={() => setMessage('')}>
-          {message}
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
+            <span>{message}</span>
+            {completedOrder && (
+              <Button component={Link} to="/orders" size="small" variant="outlined">
+                View order #{completedOrder.id.slice(0, 8)}
+              </Button>
+            )}
+          </Stack>
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" onClose={() => setError('')}>
+          {error}
         </Alert>
       )}
 
@@ -102,13 +135,13 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
               </Typography>
             </Stack>
             <Button
-              disabled={items.length === 0}
+              disabled={items.length === 0 || isCheckingOut}
               variant="contained"
               size="large"
               startIcon={<PaymentIcon />}
               onClick={checkout}
             >
-              Place order
+              {isCheckingOut ? 'Placing order...' : 'Place order'}
             </Button>
           </Stack>
         </Paper>
