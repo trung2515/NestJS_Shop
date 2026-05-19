@@ -36,7 +36,7 @@ export function AdminPage() {
         setTopProducts(topRes.data);
         setLowStock(lowRes.data);
       })
-      .catch(() => setError('Can dang nhap bang tai khoan admin de xem dashboard.'));
+      .catch(() => setError('Please sign in with an admin account to view the dashboard.'));
   }, []);
 
   return (
@@ -47,21 +47,17 @@ export function AdminPage() {
       {error && <Alert severity="warning">{error}</Alert>}
       <Grid container spacing={2.5}>
         <Grid item xs={12} lg={4}>
-          <Report
-            title="Doanh thu theo ngay"
-            icon={<InsightsIcon color="primary" />}
-            rows={sales}
-          />
+          <Report title="Daily sales" icon={<InsightsIcon color="primary" />} rows={sales} />
         </Grid>
         <Grid item xs={12} lg={4}>
           <Report
-            title="San pham ban chay"
+            title="Top products"
             icon={<LeaderboardIcon color="primary" />}
             rows={topProducts}
           />
         </Grid>
         <Grid item xs={12} lg={4}>
-          <Report title="Ton kho thap" icon={<InventoryIcon color="primary" />} rows={lowStock} />
+          <Report title="Low stock" icon={<InventoryIcon color="primary" />} rows={lowStock} />
         </Grid>
       </Grid>
     </Stack>
@@ -96,7 +92,7 @@ function Report({ title, icon, rows }: { title: string; icon: ReactNode; rows: R
           ))}
         </TableBody>
       </Table>
-      {rows.length === 0 && <Typography color="text.secondary">Chua co du lieu.</Typography>}
+      {rows.length === 0 && <Typography color="text.secondary">No data yet.</Typography>}
     </Paper>
   );
 }

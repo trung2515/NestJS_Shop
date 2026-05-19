@@ -54,19 +54,19 @@ async function run() {
 
   const categoryRows = await categories.save([
     {
-      name: 'Dien thoai',
-      slug: 'dien-thoai',
-      description: 'Smartphone moi nhat',
+      name: 'Phones',
+      slug: 'phones',
+      description: 'Latest smartphones',
     },
     {
       name: 'Laptop',
       slug: 'laptop',
-      description: 'Laptop hoc tap va lam viec',
+      description: 'Laptops for study and work',
     },
     {
-      name: 'Phu kien',
-      slug: 'phu-kien',
-      description: 'Tai nghe, sac, ban phim',
+      name: 'Accessories',
+      slug: 'accessories',
+      description: 'Headphones, chargers, and keyboards',
     },
   ]);
 
@@ -76,7 +76,7 @@ async function run() {
       name: 'Galaxy Nova 12',
       slug: 'galaxy-nova-12',
       brand: 'Samsung',
-      description: 'Dien thoai AMOLED 120Hz, camera 50MP, pin 5000mAh.',
+      description: 'AMOLED 120Hz smartphone with a 50MP camera and 5000mAh battery.',
       price: '12990000',
       stock: 25,
       category: phones,
@@ -86,7 +86,7 @@ async function run() {
       name: 'iPhone Air 15',
       slug: 'iphone-air-15',
       brand: 'Apple',
-      description: 'Smartphone cao cap voi chip nhanh, camera tot va he sinh thai manh.',
+      description: 'Premium smartphone with a fast chip, strong camera, and rich ecosystem.',
       price: '21990000',
       stock: 12,
       category: phones,
@@ -96,7 +96,7 @@ async function run() {
       name: 'ThinkBook Pro 14',
       slug: 'thinkbook-pro-14',
       brand: 'Lenovo',
-      description: 'Laptop mong nhe cho sinh vien IT, RAM 16GB, SSD 512GB.',
+      description: 'Slim laptop for IT students with 16GB RAM and a 512GB SSD.',
       price: '18990000',
       stock: 9,
       category: laptops,
@@ -106,7 +106,7 @@ async function run() {
       name: 'ZenBook Studio 15',
       slug: 'zenbook-studio-15',
       brand: 'Asus',
-      description: 'Laptop sang tao noi dung, man hinh dep, hieu nang on dinh.',
+      description: 'Creator laptop with a sharp display and stable performance.',
       price: '24990000',
       stock: 7,
       category: laptops,
@@ -116,7 +116,7 @@ async function run() {
       name: 'AirBuds Lite',
       slug: 'airbuds-lite',
       brand: 'SoundMax',
-      description: 'Tai nghe bluetooth chong on, hop sac nho gon.',
+      description: 'Bluetooth earbuds with noise reduction and a compact charging case.',
       price: '990000',
       stock: 48,
       category: accessories,
@@ -126,7 +126,7 @@ async function run() {
       name: 'MechKey K87',
       slug: 'mechkey-k87',
       brand: 'KeyLab',
-      description: 'Ban phim co TKL, hot-swap, led trang, ket noi USB-C.',
+      description: 'TKL mechanical keyboard with hot-swap switches, white LED, and USB-C.',
       price: '1590000',
       stock: 6,
       category: accessories,
@@ -138,7 +138,7 @@ async function run() {
     user: customer,
     status: OrderStatus.PAID,
     totalAmount: '13980000',
-    shippingAddress: '12 Nguyen Trai, Quan 1, TP HCM',
+    shippingAddress: '12 Nguyen Trai Street, District 1, Ho Chi Minh City',
   });
   await orderItems.save([
     {
@@ -166,13 +166,13 @@ async function run() {
       user: customer,
       product: productRows[0],
       rating: 5,
-      comment: 'May dep, giao nhanh, pin tot.',
+      comment: 'Beautiful phone, fast delivery, and great battery life.',
     },
     {
       user: customer,
       product: productRows[4],
       rating: 4,
-      comment: 'Am thanh on trong tam gia.',
+      comment: 'Good sound quality for the price.',
     },
   ]);
 

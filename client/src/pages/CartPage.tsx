@@ -18,7 +18,7 @@ type CartItem = {
 
 export function CartPage({ onCartChange }: { onCartChange: (count: number) => void }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [address, setAddress] = useState('12 Nguyen Trai, Quan 1, TP HCM');
+  const [address, setAddress] = useState('12 Nguyen Trai Street, District 1, Ho Chi Minh City');
   const [message, setMessage] = useState('');
 
   const total = useMemo(
@@ -33,7 +33,7 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   }, [onCartChange]);
 
   useEffect(() => {
-    load().catch(() => setMessage('Can dang nhap de xem gio hang.'));
+    load().catch(() => setMessage('Please sign in to view your cart.'));
   }, [load]);
 
   async function removeItem(id: string) {
@@ -43,14 +43,14 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
 
   async function checkout() {
     await api.post('/orders/checkout', { shippingAddress: address, paymentProvider: 'COD Demo' });
-    setMessage('Dat hang thanh cong. Backend da tao order bang transaction va tru ton kho.');
+    setMessage('Order placed successfully. The backend created the order in a transaction.');
     await load();
   }
 
   return (
     <Stack spacing={3}>
       <Typography variant="h4" fontWeight={900}>
-        Gio hang
+        Cart
       </Typography>
       {message && (
         <Alert severity="info" onClose={() => setMessage('')}>
@@ -71,9 +71,9 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
                 />
                 <Box flexGrow={1}>
                   <Typography fontWeight={850}>{item.product.name}</Typography>
-                  <Typography color="text.secondary">So luong: {item.quantity}</Typography>
+                  <Typography color="text.secondary">Quantity: {item.quantity}</Typography>
                   <Typography color="primary" fontWeight={900}>
-                    {Number(item.product.price).toLocaleString('vi-VN')} d
+                    {Number(item.product.price).toLocaleString('en-US')} VND
                   </Typography>
                 </Box>
                 <Button
@@ -81,14 +81,14 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
                   startIcon={<DeleteIcon />}
                   onClick={() => removeItem(item.id)}
                 >
-                  Xoa
+                  Remove
                 </Button>
               </Stack>
             </Paper>
           ))}
           {items.length === 0 && (
             <Paper elevation={0} sx={{ p: 3, border: '1px solid #e5e7eb' }}>
-              Gio hang dang trong.
+              Your cart is empty.
             </Paper>
           )}
         </Stack>
@@ -96,20 +96,20 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
         <Paper elevation={0} sx={{ p: 3, border: '1px solid #e5e7eb', height: 'fit-content' }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={900}>
-              Thanh toan
+              Checkout
             </Typography>
             <Divider />
             <TextField
-              label="Dia chi giao hang"
+              label="Shipping address"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
               multiline
               minRows={3}
             />
             <Stack direction="row" justifyContent="space-between">
-              <Typography>Tong tien</Typography>
+              <Typography>Total</Typography>
               <Typography fontWeight={900} color="primary">
-                {total.toLocaleString('vi-VN')} d
+                {total.toLocaleString('en-US')} VND
               </Typography>
             </Stack>
             <Button
@@ -119,7 +119,7 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
               startIcon={<PaymentIcon />}
               onClick={checkout}
             >
-              Dat hang
+              Place order
             </Button>
           </Stack>
         </Paper>

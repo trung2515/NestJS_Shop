@@ -42,7 +42,7 @@ export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptio
   password: configService.get('DB_PASSWORD', 'shopnest123'),
   database: configService.get('DB_NAME', 'shopnest'),
   entities: entityList,
-  synchronize: false,
+  synchronize: true,
   logging: configService.get('DB_LOGGING', 'false') === 'true',
 });
 
@@ -55,7 +55,7 @@ const options: DataSourceOptions = {
   database: process.env.DB_NAME ?? 'shopnest',
   entities: entityList,
   migrations: [InitShopNest1710000000000],
-  synchronize: false,
+  synchronize: true,
 };
 
 export default new DataSource(options);

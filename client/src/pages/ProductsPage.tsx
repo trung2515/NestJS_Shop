@@ -43,13 +43,13 @@ export function ProductsPage({ session, onCartChange }: Props) {
 
   async function addToCart(productId: string) {
     if (!session.user) {
-      setMessage('Dang nhap de them san pham vao gio hang.');
+      setMessage('Please sign in to add products to your cart.');
       return;
     }
     await api.post('/cart/items', { productId, quantity: 1 });
     const cart = await api.get('/cart');
     onCartChange(cart.data?.items?.length ?? 0);
-    setMessage('Da them vao gio hang.');
+    setMessage('Added to cart.');
   }
 
   return (
@@ -60,7 +60,7 @@ export function ProductsPage({ session, onCartChange }: Props) {
             ShopNest
           </Typography>
           <Typography color="text.secondary" maxWidth={640}>
-            Demo web ban hang voi NestJS, PostgreSQL transaction, JWT va dashboard SQL.
+            E-commerce demo built with NestJS, PostgreSQL transactions, JWT, and SQL reports.
           </Typography>
         </Box>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -68,17 +68,17 @@ export function ProductsPage({ session, onCartChange }: Props) {
             fullWidth
             value={q}
             onChange={(event) => setQ(event.target.value)}
-            placeholder="Tim dien thoai, laptop..."
+            placeholder="Search phones, laptops..."
             InputProps={{ startAdornment: <SearchIcon fontSize="small" /> }}
           />
           <TextField
             select
-            label="Danh muc"
+            label="Category"
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
             sx={{ minWidth: 190 }}
           >
-            <MenuItem value="">Tat ca</MenuItem>
+            <MenuItem value="">All</MenuItem>
             {categories.map((category) => (
               <MenuItem key={category.id} value={category.id}>
                 {category.name}
@@ -114,7 +114,7 @@ export function ProductsPage({ session, onCartChange }: Props) {
                     variant="caption"
                     color={product.stock <= 10 ? 'error' : 'text.secondary'}
                   >
-                    Con {product.stock}
+                    Stock {product.stock}
                   </Typography>
                 </Stack>
                 <Box minHeight={88}>
@@ -129,7 +129,7 @@ export function ProductsPage({ session, onCartChange }: Props) {
                   </Typography>
                 </Box>
                 <Typography variant="h6" color="primary" fontWeight={900}>
-                  {Number(product.price).toLocaleString('vi-VN')} d
+                  {Number(product.price).toLocaleString('en-US')} VND
                 </Typography>
                 <Stack direction="row" spacing={1}>
                   <Button
@@ -138,10 +138,10 @@ export function ProductsPage({ session, onCartChange }: Props) {
                     startIcon={<AddShoppingCartIcon />}
                     onClick={() => addToCart(product.id)}
                   >
-                    Them gio
+                    Add
                   </Button>
                   <Button component={Link} to="/cart" variant="outlined">
-                    Gio
+                    Cart
                   </Button>
                 </Stack>
               </Stack>

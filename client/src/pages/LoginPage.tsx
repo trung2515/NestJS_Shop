@@ -21,7 +21,7 @@ export function LoginPage({ session }: { session: Session }) {
       session.setUser(res.data.user);
       navigate('/');
     } catch {
-      setError('Dang nhap that bai. Kiem tra email va mat khau.');
+      setError('Login failed. Please check your email and password.');
     }
   }
 
@@ -30,7 +30,7 @@ export function LoginPage({ session }: { session: Session }) {
       <Paper elevation={0} sx={{ p: 3, border: '1px solid #e5e7eb' }}>
         <Stack component="form" spacing={2.5} onSubmit={submit}>
           <Typography variant="h4" fontWeight={900}>
-            Dang nhap
+            Sign in
           </Typography>
           {error && <Alert severity="error">{error}</Alert>}
           <TextField
@@ -39,13 +39,13 @@ export function LoginPage({ session }: { session: Session }) {
             onChange={(event) => setEmail(event.target.value)}
           />
           <TextField
-            label="Mat khau"
+            label="Password"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
           <Button type="submit" size="large" variant="contained" startIcon={<LoginIcon />}>
-            Dang nhap
+            Sign in
           </Button>
           <Typography variant="body2" color="text.secondary">
             Admin: admin@shopnest.com / Admin123! | Customer: linh@example.com / Customer123!
