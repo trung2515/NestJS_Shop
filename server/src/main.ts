@@ -10,7 +10,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: config.get('CLIENT_URL', 'http://localhost:5173'),
+    origin: config.get('CLIENT_URL', 'http://localhost:4000'),
     credentials: true,
   });
   app.useGlobalPipes(
@@ -21,7 +21,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(config.get('PORT', 3000));
+  await app.listen(config.get('PORT', 4001));
 }
 
 void bootstrap();

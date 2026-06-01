@@ -42,6 +42,13 @@ export function OrdersPage() {
                 </Box>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Chip size="small" color="primary" label={order.status} />
+                  {order.payment && (
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`${order.payment.provider}: ${order.payment.status}`}
+                    />
+                  )}
                   <Typography fontWeight={900} color="primary">
                     {Number(order.totalAmount).toLocaleString('en-US')} VND
                   </Typography>
@@ -62,11 +69,12 @@ export function OrdersPage() {
                     <Box>
                       <Typography fontWeight={800}>{item.product.name}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Quantity: {item.quantity}
+                        Quantity: {item.quantity} x {Number(item.unitPrice).toLocaleString('en-US')}{' '}
+                        VND
                       </Typography>
                     </Box>
                     <Typography fontWeight={800}>
-                      {Number(item.unitPrice).toLocaleString('en-US')} VND
+                      {(Number(item.unitPrice) * item.quantity).toLocaleString('en-US')} VND
                     </Typography>
                   </Stack>
                 ))}

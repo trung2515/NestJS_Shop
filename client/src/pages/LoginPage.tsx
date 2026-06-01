@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Paper, Stack, TextField, Typography } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import { authApi } from '../api/auth';
+import { storeAuth } from '../api/client';
 import { Session } from '../App';
 
 export function LoginPage({ session }: { session: Session }) {
@@ -16,8 +17,7 @@ export function LoginPage({ session }: { session: Session }) {
     setError('');
     try {
       const auth = await authApi.login(email, password);
-      localStorage.setItem('accessToken', auth.accessToken);
-      localStorage.setItem('user', JSON.stringify(auth.user));
+      storeAuth(auth);
       session.setUser(auth.user);
       navigate('/');
     } catch {

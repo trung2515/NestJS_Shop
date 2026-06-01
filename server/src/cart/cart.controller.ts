@@ -1,8 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CurrentUser, JwtUser } from '../common/current-user.decorator';
+import { Roles } from '../common/roles.decorator';
+import { UserRole } from '../database/entities';
 import { CartService } from './cart.service';
 import { AddCartItemDto } from './dto';
 
+@Roles(UserRole.CUSTOMER)
 @Controller('cart')
 export class CartController {
   constructor(private readonly cart: CartService) {}

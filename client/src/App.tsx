@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Badge,
@@ -17,6 +17,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import { cartApi } from './api/cart';
+import { clearStoredAuth, isStoredSessionExpired } from './api/client';
 import { AuthUser } from './api/types';
 import { AdminPage } from './pages/AdminPage';
 import { CartPage } from './pages/CartPage';
@@ -31,6 +32,10 @@ export type Session = {
 
 export default function App() {
   const [user, setUser] = useState<AuthUser | null>(() => {
+    if (isStoredSessionExpired()) {
+      clearStoredAuth();
+      return null;
+    }
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
@@ -40,21 +45,28 @@ export default function App() {
   const session = useMemo(() => ({ user, setUser }), [user]);
 
   useEffect(() => {
+    if (!user) navigate('/login', { replace: true });
+  }, [navigate, user]);
+
+  useEffect(() => {
     if (!user) {
       setCartCount(0);
       return;
     }
-    cartApi
-      .get()
-      .then((cart) => setCartCount(cart.items?.length ?? 0))
-      .catch(() => setCartCount(0));
+    if (user.role === 'CUSTOMER') {
+      cartApi
+        .get()
+        .then((cart) => setCartCount(cart.items?.length ?? 0))
+        .catch(() => setCartCount(0));
+    } else {
+      setCartCount(0);
+    }
   }, [user]);
 
   function logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('user');
+    clearStoredAuth();
     setUser(null);
-    navigate('/');
+    navigate('/login');
   }
 
   return (
@@ -76,9 +88,11 @@ export default function App() {
           >
             ShopNest
           </Typography>
-          <Button component={Link} to="/" startIcon={<StorefrontIcon />}>
-            Shop
-          </Button>
+          {user?.role === 'CUSTOMER' && (
+            <Button component={Link} to="/" startIcon={<StorefrontIcon />}>
+              Shop
+            </Button>
+          )}
           {user?.role === 'ADMIN' && (
             <Button component={Link} to="/admin" startIcon={<DashboardIcon />}>
               Admin
@@ -86,14 +100,18 @@ export default function App() {
           )}
           {user ? (
             <>
-              <Button component={Link} to="/orders" startIcon={<ReceiptLongIcon />}>
-                Orders
-              </Button>
-              <IconButton component={Link} to="/cart" aria-label="cart">
-                <Badge badgeContent={cartCount} color="secondary">
-                  <ShoppingCartIcon />
-                </Badge>
-              </IconButton>
+              {user.role === 'CUSTOMER' && (
+                <>
+                  <Button component={Link} to="/orders" startIcon={<ReceiptLongIcon />}>
+                    Orders
+                  </Button>
+                  <IconButton component={Link} to="/cart" aria-label="cart">
+                    <Badge badgeContent={cartCount} color="primary">
+                      <ShoppingCartIcon />
+                    </Badge>
+                  </IconButton>
+                </>
+              )}
               <Button onClick={logout} startIcon={<LogoutIcon />}>
                 Logout
               </Button>
@@ -110,12 +128,35 @@ export default function App() {
         <Routes>
           <Route
             path="/"
-            element={<ProductsPage session={session} onCartChange={setCartCount} />}
+            element={
+              user?.role === 'CUSTOMER' ? (
+                <ProductsPage session={session} onCartChange={setCartCount} />
+              ) : user?.role === 'ADMIN' ? (
+                <Navigate to="/admin" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
-          <Route path="/login" element={<LoginPage session={session} />} />
-          <Route path="/cart" element={<CartPage onCartChange={setCartCount} />} />
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" replace /> : <LoginPage session={session} />}
+          />
+          <Route
+            path="/cart"
+            element={
+              user ? <CartPage onCartChange={setCartCount} /> : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/orders"
+            element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/admin"
+            element={user?.role === 'ADMIN' ? <AdminPage /> : <Navigate to="/login" replace />}
+          />
+          <Route path="*" element={<Navigate to={user ? '/' : '/login'} replace />} />
         </Routes>
       </Container>
     </Box>

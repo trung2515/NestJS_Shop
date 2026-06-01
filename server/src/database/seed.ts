@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import dataSource from './data-source';
 import {
+  Address,
   Cart,
   Category,
   Order,
@@ -29,6 +30,7 @@ async function run() {
   `);
 
   const users = dataSource.getRepository(User);
+  const addresses = dataSource.getRepository(Address);
   const carts = dataSource.getRepository(Cart);
   const categories = dataSource.getRepository(Category);
   const products = dataSource.getRepository(Product);
@@ -37,7 +39,7 @@ async function run() {
   const payments = dataSource.getRepository(Payment);
   const reviews = dataSource.getRepository(Review);
 
-  const admin = await users.save({
+  await users.save({
     fullName: 'ShopNest Admin',
     email: 'admin@shopnest.com',
     passwordHash: await bcrypt.hash('Admin123!', 10),
@@ -45,14 +47,60 @@ async function run() {
     phone: '0900000001',
   });
 
-  const customer = await users.save({
-    fullName: 'Nguyen Khanh Linh',
-    email: 'linh@example.com',
-    passwordHash: await bcrypt.hash('Customer123!', 10),
-    role: UserRole.CUSTOMER,
-    phone: '0900000002',
-  });
-  await carts.save([{ user: admin }, { user: customer }]);
+  const [linh, minh, an] = await users.save([
+    {
+      fullName: 'Nguyen Khanh Linh',
+      email: 'linh@example.com',
+      passwordHash: await bcrypt.hash('Customer123!', 10),
+      role: UserRole.CUSTOMER,
+      phone: '0900000002',
+    },
+    {
+      fullName: 'Tran Duc Minh',
+      email: 'minh@example.com',
+      passwordHash: await bcrypt.hash('Customer123!', 10),
+      role: UserRole.CUSTOMER,
+      phone: '0900000003',
+    },
+    {
+      fullName: 'Le Bao An',
+      email: 'an@example.com',
+      passwordHash: await bcrypt.hash('Customer123!', 10),
+      role: UserRole.CUSTOMER,
+      phone: '0900000004',
+    },
+  ]);
+  await carts.save([{ user: linh }, { user: minh }, { user: an }]);
+
+  await addresses.save([
+    {
+      user: linh,
+      receiverName: 'Nguyen Khanh Linh',
+      phone: '0900000002',
+      line1: '12 Nguyen Trai Street',
+      district: 'District 1',
+      city: 'Ho Chi Minh City',
+      isDefault: true,
+    },
+    {
+      user: minh,
+      receiverName: 'Tran Duc Minh',
+      phone: '0900000003',
+      line1: '88 Cach Mang Thang 8',
+      district: 'District 3',
+      city: 'Ho Chi Minh City',
+      isDefault: true,
+    },
+    {
+      user: an,
+      receiverName: 'Le Bao An',
+      phone: '0900000004',
+      line1: '25 Vo Van Ngan',
+      district: 'Thu Duc City',
+      city: 'Ho Chi Minh City',
+      isDefault: true,
+    },
+  ]);
 
   const categoryRows = await categories.save([
     {
@@ -61,8 +109,8 @@ async function run() {
       description: 'Latest smartphones',
     },
     {
-      name: 'Laptop',
-      slug: 'laptop',
+      name: 'Laptops',
+      slug: 'laptops',
       description: 'Laptops for study and work',
     },
     {
@@ -236,45 +284,135 @@ async function run() {
     }),
   ]);
 
-  const order = await orders.save({
-    user: customer,
+  async function createOrder(input: {
+    user: User;
+    status: OrderStatus;
+    provider: string;
+    paymentStatus: PaymentStatus;
+    shippingAddress: string;
+    daysAgo: number;
+    items: Array<{ product: Product; quantity: number }>;
+  }) {
+    const total = input.items.reduce(
+      (sum, item) => sum + Number(item.product.price) * item.quantity,
+      0,
+    );
+    const createdAt = new Date(Date.now() - input.daysAgo * 24 * 60 * 60 * 1000);
+    const order = await orders.save({
+      user: input.user,
+      status: input.status,
+      totalAmount: total.toFixed(2),
+      shippingAddress: input.shippingAddress,
+      createdAt,
+    });
+
+    await orderItems.save(
+      input.items.map((item) => ({
+        order,
+        product: item.product,
+        quantity: item.quantity,
+        unitPrice: item.product.price,
+      })),
+    );
+    await payments.save({
+      order,
+      provider: input.provider,
+      status: input.paymentStatus,
+      amount: order.totalAmount,
+      createdAt,
+    });
+
+    if (input.status !== OrderStatus.CANCELLED) {
+      for (const item of input.items) {
+        item.product.stock -= item.quantity;
+        await products.save(item.product);
+      }
+    }
+
+    return order;
+  }
+
+  await createOrder({
+    user: linh,
     status: OrderStatus.PAID,
-    totalAmount: '13980000',
-    shippingAddress: '12 Nguyen Trai Street, District 1, Ho Chi Minh City',
+    provider: 'MOMO',
+    paymentStatus: PaymentStatus.PAID,
+    shippingAddress:
+      'Nguyen Khanh Linh | 0900000002 | 12 Nguyen Trai Street | District 1 | Ho Chi Minh City',
+    daysAgo: 1,
+    items: [
+      { product: productRows[0], quantity: 1 },
+      { product: productRows[10], quantity: 1 },
+    ],
   });
-  await orderItems.save([
-    {
-      order,
-      product: productRows[0],
-      quantity: 1,
-      unitPrice: productRows[0].price,
-    },
-    {
-      order,
-      product: productRows[4],
-      quantity: 1,
-      unitPrice: productRows[4].price,
-    },
-  ]);
-  await payments.save({
-    order,
-    provider: 'COD Demo',
-    status: PaymentStatus.PAID,
-    amount: order.totalAmount,
+  await createOrder({
+    user: linh,
+    status: OrderStatus.SHIPPED,
+    provider: 'BANK_TRANSFER',
+    paymentStatus: PaymentStatus.PAID,
+    shippingAddress:
+      'Nguyen Khanh Linh | 0900000002 | 12 Nguyen Trai Street | District 1 | Ho Chi Minh City',
+    daysAgo: 9,
+    items: [
+      { product: productRows[5], quantity: 1 },
+      { product: productRows[11], quantity: 1 },
+    ],
+  });
+  await createOrder({
+    user: minh,
+    status: OrderStatus.PENDING,
+    provider: 'COD',
+    paymentStatus: PaymentStatus.PENDING,
+    shippingAddress:
+      'Tran Duc Minh | 0900000003 | 88 Cach Mang Thang 8 | District 3 | Ho Chi Minh City',
+    daysAgo: 0,
+    items: [
+      { product: productRows[1], quantity: 1 },
+      { product: productRows[12], quantity: 1 },
+    ],
+  });
+  await createOrder({
+    user: minh,
+    status: OrderStatus.CANCELLED,
+    provider: 'MOMO',
+    paymentStatus: PaymentStatus.FAILED,
+    shippingAddress:
+      'Tran Duc Minh | 0900000003 | 88 Cach Mang Thang 8 | District 3 | Ho Chi Minh City',
+    daysAgo: 16,
+    items: [{ product: productRows[8], quantity: 1 }],
+  });
+  await createOrder({
+    user: an,
+    status: OrderStatus.PAID,
+    provider: 'BANK_TRANSFER',
+    paymentStatus: PaymentStatus.PAID,
+    shippingAddress: 'Le Bao An | 0900000004 | 25 Vo Van Ngan | Thu Duc City | Ho Chi Minh City',
+    daysAgo: 3,
+    items: [
+      { product: productRows[2], quantity: 1 },
+      { product: productRows[13], quantity: 2 },
+      { product: productRows[14], quantity: 1 },
+    ],
   });
 
   await reviews.save([
     {
-      user: customer,
+      user: linh,
       product: productRows[0],
       rating: 5,
       comment: 'Beautiful phone, fast delivery, and great battery life.',
     },
     {
-      user: customer,
-      product: productRows[4],
+      user: minh,
+      product: productRows[1],
+      rating: 5,
+      comment: 'Premium build and the camera is excellent.',
+    },
+    {
+      user: an,
+      product: productRows[13],
       rating: 4,
-      comment: 'Good sound quality for the price.',
+      comment: 'Comfortable mouse for long study sessions.',
     },
   ]);
 

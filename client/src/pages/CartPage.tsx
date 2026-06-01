@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Box, Button, Divider, Paper, Stack, TextField, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  MenuItem,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
 import { Link } from 'react-router-dom';
@@ -10,7 +20,12 @@ import { CartItem, Order } from '../api/types';
 
 export function CartPage({ onCartChange }: { onCartChange: (count: number) => void }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [address, setAddress] = useState('12 Nguyen Trai Street, District 1, Ho Chi Minh City');
+  const [receiverName, setReceiverName] = useState('Nguyen Khanh Linh');
+  const [phone, setPhone] = useState('0900000002');
+  const [line1, setLine1] = useState('12 Nguyen Trai Street');
+  const [district, setDistrict] = useState('District 1');
+  const [city, setCity] = useState('Ho Chi Minh City');
+  const [paymentProvider, setPaymentProvider] = useState('COD');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -44,8 +59,12 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
 
     try {
       const order = await ordersApi.checkout({
-        shippingAddress: address,
-        paymentProvider: 'COD Demo',
+        receiverName,
+        phone,
+        line1,
+        district,
+        city,
+        paymentProvider,
       });
       setCompletedOrder(order);
       setMessage('Order placed successfully. The backend created the order in a transaction.');
@@ -122,12 +141,47 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
             </Typography>
             <Divider />
             <TextField
-              label="Shipping address"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              multiline
-              minRows={3}
+              label="Receiver name"
+              value={receiverName}
+              onChange={(event) => setReceiverName(event.target.value)}
             />
+            <TextField
+              label="Phone"
+              value={phone}
+              onChange={(event) => setPhone(event.target.value)}
+            />
+            <TextField
+              label="Address line"
+              value={line1}
+              onChange={(event) => setLine1(event.target.value)}
+            />
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <TextField
+                fullWidth
+                label="District"
+                value={district}
+                onChange={(event) => setDistrict(event.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="City"
+                value={city}
+                onChange={(event) => setCity(event.target.value)}
+              />
+            </Stack>
+            <TextField
+              select
+              label="Payment method"
+              value={paymentProvider}
+              onChange={(event) => setPaymentProvider(event.target.value)}
+            >
+              <MenuItem value="COD">Cash on delivery</MenuItem>
+              <MenuItem value="BANK_TRANSFER">Bank transfer</MenuItem>
+              <MenuItem value="MOMO">MoMo</MenuItem>
+            </TextField>
+            <Typography variant="body2" color="text.secondary">
+              COD creates a pending payment. Digital methods are marked paid in this demo.
+            </Typography>
             <Stack direction="row" justifyContent="space-between">
               <Typography>Total</Typography>
               <Typography fontWeight={900} color="primary">

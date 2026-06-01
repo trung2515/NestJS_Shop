@@ -6,4 +6,9 @@ export const authApi = {
     const { data } = await http.post<AuthResponse>('/auth/login', { email, password });
     return data;
   },
+
+  async refresh(refreshToken: string) {
+    const { data } = await http.post<AuthResponse>('/auth/refresh', { refreshToken });
+    return data;
+  },
 };

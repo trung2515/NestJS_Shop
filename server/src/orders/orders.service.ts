@@ -62,9 +62,11 @@ export class OrdersService {
 
       const order = await manager.save(Order, {
         user: { id: userId } as User,
-        status: OrderStatus.PAID,
+        status: dto.paymentProvider === 'COD' ? OrderStatus.PENDING : OrderStatus.PAID,
         totalAmount: total.toFixed(2),
-        shippingAddress: dto.shippingAddress,
+        shippingAddress: [dto.receiverName, dto.phone, dto.line1, dto.district, dto.city].join(
+          ' | ',
+        ),
       });
 
       const orderItems = checkoutItems.map((item) =>
@@ -80,7 +82,7 @@ export class OrdersService {
       const payment = manager.create(Payment, {
         order,
         provider: dto.paymentProvider,
-        status: PaymentStatus.PAID,
+        status: dto.paymentProvider === 'COD' ? PaymentStatus.PENDING : PaymentStatus.PAID,
         amount: total.toFixed(2),
       });
       await manager.save(payment);

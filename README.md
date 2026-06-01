@@ -18,8 +18,8 @@ npm run seed
 npm run dev
 ```
 
-Server: http://localhost:3000  
-Client: http://localhost:5173  
+Server: http://localhost:4001  
+Client: http://localhost:4000  
 pgAdmin: http://localhost:5050
 
 pgAdmin login:
@@ -39,11 +39,26 @@ Tai khoan demo:
 
 - Admin: `admin@shopnest.com` / `Admin123!`
 - Customer: `linh@example.com` / `Customer123!`
+- Customer: `minh@example.com` / `Customer123!`
+- Customer: `an@example.com` / `Customer123!`
+
+Phan quyen:
+
+- Admin chi quan ly san pham: them, sua, xoa mem san pham va xem bao cao.
+- Customer moi co gio hang, checkout va lich su don hang.
+- Backend chan `cart` va `orders` bang role `CUSTOMER`; mutation san pham bi chan bang role `ADMIN`.
+
+Seed data:
+
+- Du lieu duoc chia theo bang quan he: `users`, `addresses`, `categories`, `products`, `product_images`, `carts`, `orders`, `order_items`, `payments`, `reviews`.
+- Seed tao nhieu customer, dia chi, don hang theo nhieu ngay, order status va payment status khac nhau de hoc SQL/report.
+- Report admin dung `orders`, `order_items`, `products`, `payments` de tinh revenue, top products va low stock.
 
 ## API noi bat
 
 - `POST /auth/register`
 - `POST /auth/login`
+- `POST /auth/refresh`
 - `GET /products`
 - `POST /products` admin only
 - `GET /cart`
@@ -52,3 +67,10 @@ Tai khoan demo:
 - `GET /admin/reports/sales`
 - `GET /admin/reports/top-products`
 - `GET /admin/reports/low-stock`
+
+## Dang nhap va token
+
+- Client bat buoc dang nhap truoc khi vao shop, cart, orders va admin.
+- Access token mac dinh het han sau `15m`.
+- Refresh token mac dinh het han sau `7d` va khong duoc gia han tu dong.
+- Sau 1 tuan, user phai dang nhap lai de nhan refresh token moi.

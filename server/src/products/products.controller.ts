@@ -1,5 +1,4 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { Public } from '../common/public.decorator';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../database/entities';
 import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto';
@@ -9,13 +8,11 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly products: ProductsService) {}
 
-  @Public()
   @Get()
   findAll(@Query() query: ProductQueryDto) {
     return this.products.findAll(query);
   }
 
-  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.products.findOne(id);

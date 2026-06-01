@@ -9,6 +9,7 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product) private readonly products: Repository<Product>,
     @InjectRepository(Category) private readonly categories: Repository<Category>,
+    @InjectRepository(ProductImage) private readonly images: Repository<ProductImage>,
   ) {}
 
   async findAll(query: ProductQueryDto) {
@@ -59,6 +60,11 @@ export class ProductsService {
     const category = await this.categories.findOneBy({ id: dto.categoryId });
     if (!category) throw new NotFoundException('Category not found');
 
+    await this.images
+      .createQueryBuilder()
+      .delete()
+      .where('"productId" = :productId', { productId: id })
+      .execute();
     Object.assign(product, {
       ...dto,
       price: dto.price.toFixed(2),

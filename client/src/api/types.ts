@@ -1,6 +1,7 @@
 export type Product = {
   id: string;
   name: string;
+  slug: string;
   brand: string;
   description: string;
   price: string;
@@ -30,6 +31,8 @@ export type AuthUser = {
 
 export type AuthResponse = {
   accessToken: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: number;
   user: AuthUser;
 };
 
@@ -45,7 +48,11 @@ export type Cart = {
 };
 
 export type CheckoutPayload = {
-  shippingAddress: string;
+  receiverName: string;
+  phone: string;
+  line1: string;
+  district: string;
+  city: string;
   paymentProvider: string;
 };
 
