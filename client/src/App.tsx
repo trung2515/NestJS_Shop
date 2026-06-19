@@ -23,6 +23,7 @@ import { AdminPage } from './pages/AdminPage';
 import { CartPage } from './pages/CartPage';
 import { LoginPage } from './pages/LoginPage';
 import { OrdersPage } from './pages/OrdersPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ProductsPage } from './pages/ProductsPage';
 
 export type Session = {
@@ -143,6 +144,16 @@ export default function App() {
           <Route
             path="/login"
             element={user ? <Navigate to="/" replace /> : <LoginPage session={session} />}
+          />
+          <Route
+            path="/products/:id"
+            element={
+              user?.role === 'CUSTOMER' ? (
+                <ProductDetailPage onCartChange={setCartCount} />
+              ) : (
+                <Navigate to={user?.role === 'ADMIN' ? '/admin' : '/login'} replace />
+              )
+            }
           />
           <Route
             path="/cart"

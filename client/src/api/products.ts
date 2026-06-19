@@ -4,6 +4,9 @@ import { Category, Product } from './types';
 export type ProductFilters = {
   q?: string;
   categoryId?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'stock_asc';
 };
 
 export type ProductPayload = {
@@ -24,8 +27,16 @@ export const productsApi = {
       params: {
         q: filters.q || undefined,
         categoryId: filters.categoryId || undefined,
+        minPrice: filters.minPrice || undefined,
+        maxPrice: filters.maxPrice || undefined,
+        sort: filters.sort || undefined,
       },
     });
+    return data;
+  },
+
+  async get(id: string) {
+    const { data } = await http.get<Product>(`/products/${id}`);
     return data;
   },
 

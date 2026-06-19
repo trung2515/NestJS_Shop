@@ -38,6 +38,9 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
     () => items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0),
     [items],
   );
+  const canCheckout = Boolean(
+    receiverName.trim() && phone.trim() && line1.trim() && district.trim() && city.trim(),
+  );
 
   const load = useCallback(async () => {
     const cart = await cartApi.get();
@@ -72,6 +75,10 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
     setError('');
     setMessage('');
     setCompletedOrder(null);
+    if (!canCheckout) {
+      setError('Please complete receiver, phone, and shipping address before checkout.');
+      return;
+    }
     setIsCheckingOut(true);
 
     try {
@@ -190,28 +197,33 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
             </Typography>
             <Divider />
             <TextField
+              required
               label="Receiver name"
               value={receiverName}
               onChange={(event) => setReceiverName(event.target.value)}
             />
             <TextField
+              required
               label="Phone"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
             />
             <TextField
+              required
               label="Address line"
               value={line1}
               onChange={(event) => setLine1(event.target.value)}
             />
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
+                required
                 fullWidth
                 label="District"
                 value={district}
                 onChange={(event) => setDistrict(event.target.value)}
               />
               <TextField
+                required
                 fullWidth
                 label="City"
                 value={city}
@@ -238,7 +250,7 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
               </Typography>
             </Stack>
             <Button
-              disabled={items.length === 0 || isCheckingOut}
+              disabled={items.length === 0 || isCheckingOut || !canCheckout}
               variant="contained"
               size="large"
               startIcon={<PaymentIcon />}

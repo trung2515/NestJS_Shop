@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -19,6 +20,22 @@ export class ProductQueryDto {
   @IsOptional()
   @IsUUID()
   categoryId?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  minPrice?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxPrice?: number;
+
+  @IsOptional()
+  @IsIn(['newest', 'price_asc', 'price_desc', 'stock_asc'])
+  sort?: 'newest' | 'price_asc' | 'price_desc' | 'stock_asc';
 }
 
 export class CreateProductDto {

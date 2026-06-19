@@ -31,11 +31,14 @@ export function ProductsPage({ session, onCartChange }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState('');
   const [q, setQ] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState<'newest' | 'price_asc' | 'price_desc' | 'stock_asc'>('newest');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const hasFilters = Boolean(q.trim() || categoryId);
+  const hasFilters = Boolean(q.trim() || categoryId || minPrice || maxPrice || sort !== 'newest');
 
   useEffect(() => {
     productsApi.categories().then(setCategories);
@@ -47,7 +50,7 @@ export function ProductsPage({ session, onCartChange }: Props) {
     setError('');
 
     productsApi
-      .list({ categoryId, q: q.trim() })
+      .list({ categoryId, q: q.trim(), minPrice, maxPrice, sort })
       .then((items) => {
         if (!ignore) setProducts(items);
       })
@@ -61,11 +64,14 @@ export function ProductsPage({ session, onCartChange }: Props) {
     return () => {
       ignore = true;
     };
-  }, [categoryId, q]);
+  }, [categoryId, maxPrice, minPrice, q, sort]);
 
   function clearFilters() {
     setQ('');
     setCategoryId('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSort('newest');
   }
 
   async function addToCart(productId: string) {
@@ -124,6 +130,37 @@ export function ProductsPage({ session, onCartChange }: Props) {
           </Button>
         </Stack>
       </Box>
+
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+        <TextField
+          label="Min price"
+          type="number"
+          value={minPrice}
+          onChange={(event) => setMinPrice(event.target.value)}
+          inputProps={{ min: 0 }}
+        />
+        <TextField
+          label="Max price"
+          type="number"
+          value={maxPrice}
+          onChange={(event) => setMaxPrice(event.target.value)}
+          inputProps={{ min: 0 }}
+        />
+        <TextField
+          select
+          label="Sort"
+          value={sort}
+          onChange={(event) =>
+            setSort(event.target.value as 'newest' | 'price_asc' | 'price_desc' | 'stock_asc')
+          }
+          sx={{ minWidth: 180 }}
+        >
+          <MenuItem value="newest">Newest</MenuItem>
+          <MenuItem value="price_asc">Price: low to high</MenuItem>
+          <MenuItem value="price_desc">Price: high to low</MenuItem>
+          <MenuItem value="stock_asc">Low stock first</MenuItem>
+        </TextField>
+      </Stack>
 
       <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
         <Chip
@@ -207,7 +244,12 @@ export function ProductsPage({ session, onCartChange }: Props) {
                     </Typography>
                   </Stack>
                   <Box minHeight={88}>
-                    <Typography variant="h6" fontWeight={850}>
+                    <Typography
+                      component={Link}
+                      to={`/products/${product.id}`}
+                      variant="h6"
+                      fontWeight={850}
+                    >
                       {product.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -229,8 +271,8 @@ export function ProductsPage({ session, onCartChange }: Props) {
                     >
                       Add
                     </Button>
-                    <Button component={Link} to="/cart" variant="outlined">
-                      Cart
+                    <Button component={Link} to={`/products/${product.id}`} variant="outlined">
+                      Details
                     </Button>
                   </Stack>
                 </Stack>

@@ -18,11 +18,15 @@ export class ProductsService {
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.images', 'images')
       .loadRelationCountAndMap('product.reviewCount', 'product.reviews')
-      .where('product.isActive = true')
-      .orderBy('product.createdAt', 'DESC');
+      .where('product.isActive = true');
 
     if (query.categoryId)
       qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
+    if (query.minPrice !== undefined)
+      qb.andWhere('product.price >= :minPrice', { minPrice: query.minPrice });
+    if (query.maxPrice !== undefined)
+      qb.andWhere('product.price <= :maxPrice', { maxPrice: query.maxPrice });
+
     const keyword = query.q?.trim();
     if (keyword) {
       const normalizedKeyword = keyword.toLowerCase();
@@ -49,6 +53,21 @@ export class ProductsService {
           compactKeyword: compactKeyword ? `%${compactKeyword}%` : '__no_compact_keyword__',
         },
       );
+    }
+
+    switch (query.sort) {
+      case 'price_asc':
+        qb.orderBy('product.price', 'ASC');
+        break;
+      case 'price_desc':
+        qb.orderBy('product.price', 'DESC');
+        break;
+      case 'stock_asc':
+        qb.orderBy('product.stock', 'ASC').addOrderBy('product.name', 'ASC');
+        break;
+      case 'newest':
+      default:
+        qb.orderBy('product.createdAt', 'DESC');
     }
 
     return qb.getMany();
