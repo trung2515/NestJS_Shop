@@ -1,7 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../database/entities';
 import { AdminService } from './admin.service';
+import { UpdateOrderStatusDto } from './dto';
 
 @Roles(UserRole.ADMIN)
 @Controller('admin')
@@ -21,5 +22,15 @@ export class AdminController {
   @Get('reports/low-stock')
   lowStock() {
     return this.admin.lowStock();
+  }
+
+  @Get('orders')
+  orders() {
+    return this.admin.orders();
+  }
+
+  @Patch('orders/:id/status')
+  updateOrderStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
+    return this.admin.updateOrderStatus(id, dto);
   }
 }

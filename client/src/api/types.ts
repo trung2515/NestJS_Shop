@@ -81,4 +81,8 @@ export type Order = {
   payment?: Payment;
 };
 
+export type AdminOrder = Order & {
+  user: AuthUser;
+};
+
 export type ReportRow = Record<string, string | number>;

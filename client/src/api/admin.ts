@@ -1,5 +1,5 @@
 import { http } from './client';
-import { ReportRow } from './types';
+import { AdminOrder, Order, ReportRow } from './types';
 
 export const adminApi = {
   async salesReport() {
@@ -14,6 +14,16 @@ export const adminApi = {
 
   async lowStock() {
     const { data } = await http.get<ReportRow[]>('/admin/reports/low-stock');
+    return data;
+  },
+
+  async orders() {
+    const { data } = await http.get<AdminOrder[]>('/admin/orders');
+    return data;
+  },
+
+  async updateOrderStatus(id: string, status: Order['status']) {
+    const { data } = await http.patch<AdminOrder>(`/admin/orders/${id}/status`, { status });
     return data;
   },
 };

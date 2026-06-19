@@ -1,5 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { Order } from '../database/entities';
+import { UpdateOrderStatusDto } from './dto';
 
 @Injectable()
 export class AdminService {
@@ -44,5 +46,43 @@ export class AdminService {
       WHERE stock <= 10 AND "isActive" = true
       ORDER BY stock ASC, name ASC
     `);
+  }
+
+  async orders() {
+    const orders = await this.dataSource.getRepository(Order).find({
+      relations: { user: true, items: { product: true }, payment: true },
+      order: { createdAt: 'DESC' },
+    });
+    return orders.map((order) => this.toAdminOrder(order));
+  }
+
+  async updateOrderStatus(id: string, dto: UpdateOrderStatusDto) {
+    const orders = this.dataSource.getRepository(Order);
+    const order = await orders.findOne({
+      where: { id },
+      relations: { user: true, items: { product: true }, payment: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    order.status = dto.status;
+    await orders.save(order);
+
+    const updated = await orders.findOneOrFail({
+      where: { id },
+      relations: { user: true, items: { product: true }, payment: true },
+    });
+    return this.toAdminOrder(updated);
+  }
+
+  private toAdminOrder(order: Order) {
+    return {
+      ...order,
+      user: {
+        id: order.user.id,
+        fullName: order.user.fullName,
+        email: order.user.email,
+        role: order.user.role,
+      },
+    };
   }
 }

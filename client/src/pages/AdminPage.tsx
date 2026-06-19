@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,7 +30,7 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import { adminApi } from '../api/admin';
 import { ProductPayload, productsApi } from '../api/products';
-import { Category, Product, ReportRow } from '../api/types';
+import { AdminOrder, Category, Order, Product, ReportRow } from '../api/types';
 
 const emptyProductForm = {
   name: '',
@@ -42,25 +43,31 @@ const emptyProductForm = {
   imageUrls: '',
 };
 
+const orderStatuses: Order['status'][] = ['PENDING', 'PAID', 'SHIPPED', 'CANCELLED'];
+
 export function AdminPage() {
   const [sales, setSales] = useState<ReportRow[]>([]);
   const [topProducts, setTopProducts] = useState<ReportRow[]>([]);
   const [lowStock, setLowStock] = useState<ReportRow[]>([]);
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [orderStatusFilter, setOrderStatusFilter] = useState<Order['status'] | 'ALL'>('ALL');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState('');
   const [form, setForm] = useState(emptyProductForm);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [updatingOrderId, setUpdatingOrderId] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
   const loadAdminData = useCallback(async () => {
-    const [salesReport, topProductsReport, lowStockReport, productRows, categoryRows] =
+    const [salesReport, topProductsReport, lowStockReport, orderRows, productRows, categoryRows] =
       await Promise.all([
         adminApi.salesReport(),
         adminApi.topProducts(),
         adminApi.lowStock(),
+        adminApi.orders(),
         productsApi.list(),
         productsApi.categories(),
       ]);
@@ -68,6 +75,7 @@ export function AdminPage() {
     setSales(salesReport);
     setTopProducts(topProductsReport);
     setLowStock(lowStockReport);
+    setOrders(orderRows);
     setProducts(productRows);
     setCategories(categoryRows);
   }, []);
@@ -150,6 +158,26 @@ export function AdminPage() {
       setIsDeleting(false);
     }
   }
+
+  async function updateOrderStatus(orderId: string, status: Order['status']) {
+    setError('');
+    setMessage('');
+    setUpdatingOrderId(orderId);
+    try {
+      await adminApi.updateOrderStatus(orderId, status);
+      setMessage('Order status updated.');
+      await loadAdminData();
+    } catch {
+      setError('Could not update order status.');
+    } finally {
+      setUpdatingOrderId('');
+    }
+  }
+
+  const displayedOrders =
+    orderStatusFilter === 'ALL'
+      ? orders
+      : orders.filter((order) => order.status === orderStatusFilter);
 
   return (
     <Stack spacing={3}>
@@ -279,6 +307,104 @@ export function AdminPage() {
               ))}
             </TableBody>
           </Table>
+        </Stack>
+      </Paper>
+
+      <Paper elevation={0} sx={{ p: 2.5, border: '1px solid #e5e7eb' }}>
+        <Stack spacing={2}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={2}>
+            <Typography variant="h6" fontWeight={900}>
+              Order management
+            </Typography>
+            <TextField
+              select
+              size="small"
+              label="Status"
+              value={orderStatusFilter}
+              onChange={(event) =>
+                setOrderStatusFilter(event.target.value as Order['status'] | 'ALL')
+              }
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value="ALL">All orders</MenuItem>
+              {orderStatuses.map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Stack>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Order</TableCell>
+                <TableCell>Customer</TableCell>
+                <TableCell>Items</TableCell>
+                <TableCell>Total</TableCell>
+                <TableCell>Payment</TableCell>
+                <TableCell>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {displayedOrders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>
+                    <Typography fontWeight={800}>#{order.id.slice(0, 8)}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(order.createdAt).toLocaleString('en-US')}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography fontWeight={800}>{order.user.fullName}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {order.user.email}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{order.items.length} item(s)</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {order.items
+                        .map((item) => `${item.product.name} x${item.quantity}`)
+                        .join(', ')}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{Number(order.totalAmount).toLocaleString('en-US')} VND</TableCell>
+                  <TableCell>
+                    {order.payment ? (
+                      <Stack spacing={0.5}>
+                        <Chip size="small" label={order.payment.provider} />
+                        <Typography variant="body2" color="text.secondary">
+                          {order.payment.status}
+                        </Typography>
+                      </Stack>
+                    ) : (
+                      'No payment'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      select
+                      size="small"
+                      value={order.status}
+                      disabled={updatingOrderId === order.id}
+                      onChange={(event) =>
+                        updateOrderStatus(order.id, event.target.value as Order['status'])
+                      }
+                    >
+                      {orderStatuses.map((status) => (
+                        <MenuItem key={status} value={status}>
+                          {status}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {displayedOrders.length === 0 && (
+            <Typography color="text.secondary">No orders match this status.</Typography>
+          )}
         </Stack>
       </Paper>
 
