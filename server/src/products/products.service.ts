@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Category, Product, ProductImage } from '../database/entities';
 import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto';
 
@@ -23,10 +23,31 @@ export class ProductsService {
 
     if (query.categoryId)
       qb.andWhere('category.id = :categoryId', { categoryId: query.categoryId });
-    if (query.q) {
+    const keyword = query.q?.trim();
+    if (keyword) {
+      const normalizedKeyword = keyword.toLowerCase();
+      const compactKeyword = normalizedKeyword.replace(/[^a-z0-9]+/g, '');
       qb.andWhere(
-        `to_tsvector('simple', product.name || ' ' || product.brand || ' ' || product.description) @@ plainto_tsquery('simple', :q)`,
-        { q: query.q },
+        new Brackets((search) => {
+          search
+            .where('LOWER(product.name) LIKE :keyword')
+            .orWhere('LOWER(product.slug) LIKE :keyword')
+            .orWhere('LOWER(product.brand) LIKE :keyword')
+            .orWhere('LOWER(product.description) LIKE :keyword')
+            .orWhere('LOWER(category.name) LIKE :keyword')
+            .orWhere(
+              `regexp_replace(
+                LOWER(product.name || ' ' || product.slug || ' ' || product.brand || ' ' || product.description || ' ' || category.name),
+                '[^a-z0-9]+',
+                '',
+                'g'
+              ) LIKE :compactKeyword`,
+            );
+        }),
+        {
+          keyword: `%${normalizedKeyword}%`,
+          compactKeyword: compactKeyword ? `%${compactKeyword}%` : '__no_compact_keyword__',
+        },
       );
     }
 
