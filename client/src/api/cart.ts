@@ -12,6 +12,11 @@ export const cartApi = {
     return data;
   },
 
+  async updateItem(itemId: string, quantity: number) {
+    const { data } = await http.patch(`/cart/items/${itemId}`, { quantity });
+    return data;
+  },
+
   async removeItem(itemId: string) {
     const { data } = await http.delete(`/cart/items/${itemId}`);
     return data;

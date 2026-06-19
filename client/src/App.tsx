@@ -56,7 +56,9 @@ export default function App() {
     if (user.role === 'CUSTOMER') {
       cartApi
         .get()
-        .then((cart) => setCartCount(cart.items?.length ?? 0))
+        .then((cart) =>
+          setCartCount(cart.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0),
+        )
         .catch(() => setCartCount(0));
     } else {
       setCartCount(0);

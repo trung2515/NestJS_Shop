@@ -75,7 +75,7 @@ export function ProductsPage({ session, onCartChange }: Props) {
     }
     await cartApi.addItem(productId);
     const cart = await cartApi.get();
-    onCartChange(cart.items?.length ?? 0);
+    onCartChange(cart.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0);
     setMessage('Added to cart.');
   }
 

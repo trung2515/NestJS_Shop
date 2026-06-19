@@ -10,7 +10,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveIcon from '@mui/icons-material/Remove';
 import PaymentIcon from '@mui/icons-material/Payment';
 import { Link } from 'react-router-dom';
 import { cartApi } from '../api/cart';
@@ -30,6 +32,7 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   const [error, setError] = useState('');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [updatingItemId, setUpdatingItemId] = useState('');
 
   const total = useMemo(
     () => items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0),
@@ -39,7 +42,7 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   const load = useCallback(async () => {
     const cart = await cartApi.get();
     setItems(cart.items ?? []);
-    onCartChange(cart.items?.length ?? 0);
+    onCartChange(cart.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0);
   }, [onCartChange]);
 
   useEffect(() => {
@@ -49,6 +52,20 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
   async function removeItem(id: string) {
     await cartApi.removeItem(id);
     await load();
+  }
+
+  async function updateQuantity(item: CartItem, quantity: number) {
+    if (quantity < 1 || quantity === item.quantity) return;
+    setError('');
+    setUpdatingItemId(item.id);
+    try {
+      await cartApi.updateItem(item.id, quantity);
+      await load();
+    } catch (quantityError) {
+      setError(getApiErrorMessage(quantityError, 'Could not update quantity.'));
+    } finally {
+      setUpdatingItemId('');
+    }
   }
 
   async function checkout() {
@@ -112,11 +129,43 @@ export function CartPage({ onCartChange }: { onCartChange: (count: number) => vo
                 />
                 <Box flexGrow={1}>
                   <Typography fontWeight={850}>{item.product.name}</Typography>
-                  <Typography color="text.secondary">Quantity: {item.quantity}</Typography>
                   <Typography color="primary" fontWeight={900}>
                     {Number(item.product.price).toLocaleString('en-US')} VND
                   </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Subtotal: {(Number(item.product.price) * item.quantity).toLocaleString('en-US')}{' '}
+                    VND
+                  </Typography>
                 </Box>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    disabled={updatingItemId === item.id || item.quantity <= 1}
+                    onClick={() => updateQuantity(item, item.quantity - 1)}
+                    sx={{ minWidth: 36, px: 1 }}
+                  >
+                    <RemoveIcon fontSize="small" />
+                  </Button>
+                  <TextField
+                    type="number"
+                    size="small"
+                    value={item.quantity}
+                    disabled={updatingItemId === item.id}
+                    onChange={(event) => updateQuantity(item, Number(event.target.value))}
+                    inputProps={{ min: 1, max: item.product.stock, style: { textAlign: 'center' } }}
+                    sx={{ width: 76 }}
+                  />
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    disabled={updatingItemId === item.id || item.quantity >= item.product.stock}
+                    onClick={() => updateQuantity(item, item.quantity + 1)}
+                    sx={{ minWidth: 36, px: 1 }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </Button>
+                </Stack>
                 <Button
                   color="error"
                   startIcon={<DeleteIcon />}

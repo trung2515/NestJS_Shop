@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cart, CartItem, Product, User } from '../database/entities';
-import { AddCartItemDto } from './dto';
+import { AddCartItemDto, UpdateCartItemDto } from './dto';
 
 @Injectable()
 export class CartService {
@@ -37,6 +37,20 @@ export class CartService {
     }
 
     return this.items.save({ cart, product, quantity: dto.quantity });
+  }
+
+  async updateItem(userId: string, itemId: string, dto: UpdateCartItemDto) {
+    const cart = await this.ensureCart(userId);
+    const item = await this.items.findOne({
+      where: { id: itemId, cart: { id: cart.id } },
+      relations: { product: true },
+    });
+    if (!item) throw new NotFoundException('Cart item not found');
+    if (!item.product.isActive) throw new BadRequestException('Product is unavailable');
+    if (item.product.stock < dto.quantity) throw new BadRequestException('Not enough stock');
+
+    item.quantity = dto.quantity;
+    return this.items.save(item);
   }
 
   async removeItem(userId: string, itemId: string) {

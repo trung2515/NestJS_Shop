@@ -1,9 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser, JwtUser } from '../common/current-user.decorator';
 import { Roles } from '../common/roles.decorator';
 import { UserRole } from '../database/entities';
 import { CartService } from './cart.service';
-import { AddCartItemDto } from './dto';
+import { AddCartItemDto, UpdateCartItemDto } from './dto';
 
 @Roles(UserRole.CUSTOMER)
 @Controller('cart')
@@ -18,6 +18,15 @@ export class CartController {
   @Post('items')
   addItem(@CurrentUser() user: JwtUser, @Body() dto: AddCartItemDto) {
     return this.cart.addItem(user.sub, dto);
+  }
+
+  @Patch('items/:id')
+  updateItem(
+    @CurrentUser() user: JwtUser,
+    @Param('id') itemId: string,
+    @Body() dto: UpdateCartItemDto,
+  ) {
+    return this.cart.updateItem(user.sub, itemId, dto);
   }
 
   @Delete('items/:id')
