@@ -4,6 +4,11 @@ import {
   Alert,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   MenuItem,
   Paper,
@@ -45,6 +50,8 @@ export function AdminPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingId, setEditingId] = useState('');
   const [form, setForm] = useState(emptyProductForm);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -127,15 +134,20 @@ export function AdminPage() {
     }
   }
 
-  async function removeProduct(productId: string) {
+  async function removeProduct() {
+    if (!productToDelete) return;
     setError('');
     setMessage('');
+    setIsDeleting(true);
     try {
-      await productsApi.remove(productId);
+      await productsApi.remove(productToDelete.id);
       setMessage('Product removed from the shop.');
+      setProductToDelete(null);
       await loadAdminData();
     } catch {
       setError('Could not delete product.');
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -258,7 +270,7 @@ export function AdminPage() {
                       size="small"
                       color="error"
                       startIcon={<DeleteIcon />}
-                      onClick={() => removeProduct(product.id)}
+                      onClick={() => setProductToDelete(product)}
                     >
                       Delete
                     </Button>
@@ -285,6 +297,24 @@ export function AdminPage() {
           <Report title="Low stock" icon={<InventoryIcon color="primary" />} rows={lowStock} />
         </Grid>
       </Grid>
+
+      <Dialog open={Boolean(productToDelete)} onClose={() => setProductToDelete(null)}>
+        <DialogTitle>Delete product</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Remove {productToDelete?.name} from the shop? Existing orders keep their historical item
+            data.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button disabled={isDeleting} onClick={() => setProductToDelete(null)}>
+            Cancel
+          </Button>
+          <Button color="error" variant="contained" disabled={isDeleting} onClick={removeProduct}>
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 }
