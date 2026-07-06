@@ -6,29 +6,6 @@ Full-stack e-commerce demo:
 - Server: NestJS, TypeORM, PostgreSQL, JWT
 - Database: PostgreSQL
 
-## Yeu Cau
-
-- Node.js
-- npm
-- Docker Desktop
-
-## Cai Dat
-
-```bash
-npm install
-```
-
-Tao file env:
-
-```powershell
-Copy-Item server\.env.example server\.env
-```
-
-Neu dung macOS/Linux:
-
-```bash
-cp server/.env.example server/.env
-```
 
 ## Chay Local
 
@@ -63,6 +40,12 @@ API:
 http://localhost:4001
 ```
 
+Swagger:
+
+```text
+http://localhost:4001/docs
+```
+
 pgAdmin:
 
 ```text
@@ -87,7 +70,6 @@ Password: shopnest123
 ```
 
 ## Docker local
-
 
 Chay:
 
@@ -119,8 +101,7 @@ Xem container:
 docker ps
 ```
 
-## Docker  Nginx Production
-
+## Docker Nginx Production
 
 ```yaml
 CLIENT_URL: http://<IP-LAN>:4000 (http://192.168.1.85:4000)
@@ -133,34 +114,11 @@ Build va chay:
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Chi build lai client:
-
-```powershell
-docker compose -f docker-compose.prod.yml up -d --build client
-```
-
-Chi build lai server:
-
-```powershell
-docker compose -f docker-compose.prod.yml up -d --build server
-```
-
-Xem logs:
-
-```powershell
-docker compose -f docker-compose.prod.yml logs -f
-```
 
 Dung production containers:
 
 ```powershell
 docker compose -f docker-compose.prod.yml down
-```
-
-Truy cap trong mang LAN:
-
-```text
-http://<IP-LAN>:4000
 ```
 
 ## Seed Du Lieu Khi Chay Docker Production
@@ -190,3 +148,16 @@ Customer:
 linh@example.com
 Customer123!
 ```
+
+
+## Swagger Va SQL Query
+
+Mo Swagger:
+
+```text
+http://localhost:4001/docs
+```
+
+
+
+

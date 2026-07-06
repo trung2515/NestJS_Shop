@@ -13,6 +13,7 @@ import { Order } from './database/entities/order.entity';
 import { Product } from './database/entities/product.entity';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
+import { RestDemoModule } from './rest-demo/rest-demo.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { UsersModule } from './users/users.module';
 
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
     OrdersModule,
     ReviewsModule,
     AdminModule,
+    RestDemoModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
