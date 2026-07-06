@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shopnest-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shopnest
+      POSTGRES_PASSWORD: shopnest123
+      POSTGRES_DB: shopnest
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: shopnest-server
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: shopnest
+      DB_PASSWORD: shopnest123
+      DB_NAME: shopnest
+      JWT_SECRET: shopnest_super_secret_change_me
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: shopnest_refresh_secret_change_me
+      JWT_REFRESH_EXPIRES_IN: 7d
+      PORT: 4001
+      CLIENT_URL: http://192.168.1.85:4000
+    ports:
+      - '4001:4001'
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        VITE_API_URL: http://192.168.1.85:4001
+    container_name: shopnest-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - '4000:4000'
+
+volumes:
+  postgres-data:

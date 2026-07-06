@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Badge,
@@ -25,6 +25,7 @@ import { LoginPage } from './pages/LoginPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ProductsPage } from './pages/ProductsPage';
+import { RegisterPage } from './pages/RegisterPage';
 
 export type Session = {
   user: AuthUser | null;
@@ -42,12 +43,15 @@ export default function App() {
   });
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const session = useMemo(() => ({ user, setUser }), [user]);
 
   useEffect(() => {
-    if (!user) navigate('/login', { replace: true });
-  }, [navigate, user]);
+    if (!user && !['/login', '/register'].includes(location.pathname)) {
+      navigate('/login', { replace: true });
+    }
+  }, [location.pathname, navigate, user]);
 
   useEffect(() => {
     if (!user) {
@@ -144,6 +148,10 @@ export default function App() {
           <Route
             path="/login"
             element={user ? <Navigate to="/" replace /> : <LoginPage session={session} />}
+          />
+          <Route
+            path="/register"
+            element={user ? <Navigate to="/" replace /> : <RegisterPage session={session} />}
           />
           <Route
             path="/products/:id"

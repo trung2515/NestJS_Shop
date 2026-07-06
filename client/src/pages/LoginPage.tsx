@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Box, Button, Paper, Stack, TextField, Typography } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
 import { authApi } from '../api/auth';
@@ -47,6 +47,12 @@ export function LoginPage({ session }: { session: Session }) {
           <Button type="submit" size="large" variant="contained" startIcon={<LoginIcon />}>
             Sign in
           </Button>
+          <Typography variant="body2" color="text.secondary">
+            New customer?{' '}
+            <Link to="/register" style={{ color: '#1976d2', textDecoration: 'underline' }}>
+              Create an account
+            </Link>
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Admin: admin@shopnest.com / Admin123! | Customer: linh@example.com / Customer123!
           </Typography>
