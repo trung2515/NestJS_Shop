@@ -31,7 +31,7 @@ services:
       JWT_REFRESH_SECRET: shopnest_refresh_secret_change_me
       JWT_REFRESH_EXPIRES_IN: 7d
       PORT: 4001
-      CLIENT_URL: http://192.168.1.85:4000
+      CLIENT_URL: http://web.trungpd.icd
     ports:
       - '4001:4001'
 
@@ -40,13 +40,13 @@ services:
       context: .
       dockerfile: client/Dockerfile
       args:
-        VITE_API_URL: http://192.168.1.85:4001
+        VITE_API_URL: http://web.trungpd.icd/api
     container_name: shopnest-client
     restart: unless-stopped
     depends_on:
       - server
     ports:
-      - '4000:4000'
+      - '80:80'
 
 volumes:
   postgres-data:
